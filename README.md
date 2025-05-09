@@ -49,6 +49,8 @@ sudo apt install screen
 
 screen -S aztec
 
+sudo apt update && sudo apt install git -y
+
 git clone https://github.com/tnetone1/aztec-validator-node.git
 
 cd aztec-validator-node
