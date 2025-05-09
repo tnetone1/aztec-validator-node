@@ -75,3 +75,15 @@ For example, if your private key is: ane7anegbnaje88ame, make sure it appears as
 **IMPORTENT**: After copying the private key, paste it into the appropriate section on your VPS. You only need to click once, and the private key will stay hidden for security.
 
 **IMP** Required Sepolia Faucet Eth Search From google or youtube etc...
+
+
+
+**IF Docker Start Issue**
+```
+sudo systemctl start docker
+
+sudo systemctl enable docker
+
+sudo systemctl status docker
+
+```
