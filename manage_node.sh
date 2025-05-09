@@ -59,6 +59,31 @@ install_dependencies() {
   sudo systemctl restart docker.service || true
 }
 
+# Start Docker service if not running
+start_docker_if_not_running() {
+  if ! systemctl is-active --quiet docker; then
+    echo "Docker is not running. Starting Docker..."
+    sudo systemctl start docker
+  else
+    echo "Docker is already running."
+  fi
+
+  # Enable Docker to start on boot
+  sudo systemctl enable docker || true
+}
+
+# Add user to docker group if not already added
+add_user_to_docker_group() {
+  if ! groups $USER | grep -q '\bdocker\b'; then
+    echo "Adding $USER to the Docker group..."
+    sudo usermod -aG docker $USER
+    echo "User added to Docker group. Please log out and log back in for the changes to take effect."
+    exit 0
+  else
+    echo "$USER is already a member of the Docker group."
+  fi
+}
+
 stop_node() {
   pkill -f "aztec start" || true
   docker ps -q --filter ancestor=aztecprotocol/aztec | xargs -r docker stop | xargs -r docker rm
@@ -149,30 +174,4 @@ reinstall_node() {
   setup
 }
 
-echo -e "${CYAN}${BOLD}Aztec Validator Manager${RESET}"
-echo -e "${YELLOW}              by Brock0021${RESET}"
-echo "1) Setup Node Validator"
-echo "2) Get Role Apprentice"
-echo "3) Register Validator"
-echo "4) Stop Node"
-echo "5) Restart Node"
-echo "6) Change RPC"
-echo "7) Delete Node Data"
-echo "8) Full Clean"
-echo "9) Reinstall Node"
-echo "x) Exit"
-read -rp "Select: " choice
-
-case "$choice" in
-  1) setup ;;
-  2) get_apprentice ;;
-  3) register_validator ;;
-  4) stop_node ;;
-  5) restart_node ;;
-  6) change_rpc ;;
-  7) wipe_data ;;
-  8) full_clean ;;
-  9) reinstall_node ;;
-  x|X) exit 0 ;;
-  *) exit 1 ;;
-esac
+echo -e "${CYAN}${BOLD}Aztec Validator Manager
