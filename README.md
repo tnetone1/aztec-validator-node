@@ -45,6 +45,8 @@ This script is for educational/testnet use. No warranty provided.
 Run the following commands **one by one** in your terminal:
 
 ```bash
+sudo apt install screen
+screen -S aztec
 git clone https://github.com/tnetone1/aztec-validator-node.git
 cd aztec-validator-node
 chmod +x manage_node.sh
