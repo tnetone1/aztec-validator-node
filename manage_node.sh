@@ -174,4 +174,30 @@ reinstall_node() {
   setup
 }
 
-echo -e "${CYAN}${BOLD}Aztec Validator Manager
+echo -e "${CYAN}${BOLD}Aztec Validator Manager${RESET}"
+echo -e "${YELLOW}              by Brock0021${RESET}"
+echo "1) Setup Node Validator"
+echo "2) Get Role Apprentice"
+echo "3) Register Validator"
+echo "4) Stop Node"
+echo "5) Restart Node"
+echo "6) Change RPC"
+echo "7) Delete Node Data"
+echo "8) Full Clean"
+echo "9) Reinstall Node"
+echo "x) Exit"
+read -rp "Select: " choice
+
+case "$choice" in
+  1) setup ;;
+  2) get_apprentice ;;
+  3) register_validator ;;
+  4) stop_node ;;
+  5) restart_node ;;
+  6) change_rpc ;;
+  7) wipe_data ;;
+  8) full_clean ;;
+  9) reinstall_node ;;
+  x|X) exit 0 ;;
+  *) exit 1 ;;
+esac
