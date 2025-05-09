@@ -35,7 +35,8 @@ This script is for educational/testnet use. No warranty provided.
 
 ## 🚀 Quick Start
 
-You Can Get RPC From Here :- https://drpc.org/
+You Can Get RPC From Here :- https://drpc.org
+
 Run the following commands one by one in your terminal:
 
 ```bash
