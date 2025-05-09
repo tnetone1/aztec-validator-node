@@ -1,7 +1,7 @@
 # Aztec Validator Node Manager
 
 A one-click script to install, configure, and manage your Aztec Alpha-Testnet validator node.  
-**By Brock0021**
+**By TG - @Brock0021**
 
 ## 🔧 Features
 
