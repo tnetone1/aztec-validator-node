@@ -3,6 +3,9 @@
 A one-click script to install, configure, and manage your Aztec Alpha-Testnet validator node.  
 **By TG - @Brock0021**
 
+## 🔧 📋 Prerequisites
+
+
 ## 🔧 Features
 
 - Full node setup with Docker
