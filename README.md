@@ -36,8 +36,13 @@ This script is for educational/testnet use. No warranty provided.
 
 ## 🧰 Quick Start
 
+## 🚀 Quick Start
+
+Run the following commands in your terminal:
+
 ```bash
 git clone https://github.com/tnetone1/aztec-validator-node.git
 cd aztec-validator-node
 chmod +x manage_node.sh
 ./manage_node.sh
+
