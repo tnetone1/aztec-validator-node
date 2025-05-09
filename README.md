@@ -37,7 +37,7 @@ This script is for educational/testnet use. No warranty provided.
 
 You Can Get RPC From Here :- https://drpc.org
 
-Run the following commands one by one in your terminal:
+Run the following commands **one by one** in your terminal:
 
 ```bash
 git clone https://github.com/tnetone1/aztec-validator-node.git
