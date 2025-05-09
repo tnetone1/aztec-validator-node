@@ -45,6 +45,7 @@ chmod +x manage_node.sh
 ```
 
 While Running Script :- 
+
 Sepolia RPC: Add the Sepolia RPC link in the relevant section for the Sepolia network.
 
 Beacon: Similarly, add the Beacon Sepolia link where it is required.
