@@ -4,11 +4,11 @@ A one-click script to install, configure, and manage your Aztec Alpha-Testnet va
 **By TG - @Brock0021**
 
 ## 🔧 📋 Prerequisites
-OS: Ubuntu-based system (tested on 20.04+)
-Machine Specs: 8‑Core CPU, 16 GiB RAM, 1 TB NVMe SSD
-Network: ≥25 Mbps up/down bandwidth (typical consumer desktop or laptop is sufficient)
-Server Requirements: Ensure these specs are met; if not, reach out for assistance.
-RPC Endpoint: For best performance, use a paid Ankr RPC. For a free alternative, try DRPC: https://drpc.org?ref=1e9da0
+- OS: Ubuntu-based system (tested on 20.04+)
+- Machine Specs: 8‑Core CPU, 16 GiB RAM, 1 TB NVMe SSD
+- Network: ≥25 Mbps up/down bandwidth (typical consumer desktop or laptop is sufficient)
+- Server Requirements: Ensure these specs are met; if not, reach out for assistance.
+- RPC Endpoint: For best performance, use a paid Ankr RPC. For a free alternative, try DRPC: https://drpc.org?ref=1e9da0
 
 ## 🔧 Features
 
