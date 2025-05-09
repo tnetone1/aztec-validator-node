@@ -44,7 +44,7 @@ chmod +x manage_node.sh
 ./manage_node.sh
 ```
 
-**While Running Script :- **
+**While Running Script ** :-
 
 **Sepolia RPC**: Add the Sepolia RPC link in the relevant section for the Sepolia network.
 
