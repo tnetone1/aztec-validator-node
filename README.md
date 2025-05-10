@@ -87,3 +87,9 @@ sudo systemctl enable docker
 sudo systemctl status docker
 
 ```
+if this permission issue
+permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.49/containers/json?filters=%7B%22ancestor%22%3A%7B%22aztecprotocol%2Faztec%22%3Atrue%7D%7D": dial unix /var/run/docker.sock: connect: permission denied
+```
+newgrp docker
+docker ps
+```
