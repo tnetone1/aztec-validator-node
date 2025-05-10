@@ -106,7 +106,6 @@ setup() {
   start_node
 }
 
-# Other functions like get_apprentice, register_validator, change_rpc, etc. follow here...
 get_apprentice() {
   load_env
   block=$(curl -s -X POST -H 'Content-Type: application/json' \
@@ -155,7 +154,7 @@ reinstall_node() {
   full_clean
   setup
 }
-# Initial setup or Main Menu
+
 echo -e "${CYAN}${BOLD}Aztec Validator Manager${RESET}"
 echo -e "${YELLOW}              by Brock0021${RESET}"
 echo "1) Initial Setup"
