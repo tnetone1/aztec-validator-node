@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # manage_node.sh — All-in-one Aztec Alpha-Testnet Validator Manager
-# by TG - @Brock0021
+# by TG - @Brock0021 (Modified)
 
 set -euo pipefail
 
@@ -9,6 +9,42 @@ RED=$'\e[0;31m'; GREEN=$'\e[0;32m'; YELLOW=$'\e[1;33m'; CYAN=$'\e[0;36m'; BOLD=$
 
 ENV_FILE=".env"
 DATA_DIR="$HOME/.aztec/alpha-testnet/data"
+
+initial_setup() {
+  echo -e "${CYAN}[*] Running Initial System Setup...${RESET}"
+
+  echo -e "${YELLOW}Updating system packages...${RESET}"
+  sudo apt-get update && sudo apt-get upgrade -y
+
+  echo -e "${YELLOW}Installing Node.js 20.x...${RESET}"
+  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+  sudo apt update && sudo apt install -y nodejs
+
+  echo -e "${YELLOW}Installing essential packages...${RESET}"
+  sudo apt install curl iptables build-essential git wget lz4 jq make gcc nano automake autoconf tmux htop \
+    nvme-cli libgbm1 pkg-config libssl-dev libleveldb-dev tar clang bsdmainutils ncdu unzip libleveldb-dev screen ufw -y
+
+  echo -e "${YELLOW}Installing Docker and Docker Compose...${RESET}"
+  sudo apt update && sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+    | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+  sudo apt update && sudo apt install -y docker-ce
+  sudo systemctl enable --now docker
+
+  echo -e "${YELLOW}Adding user to docker group...${RESET}"
+  sudo usermod -aG docker $USER
+
+  echo -e "${YELLOW}Installing latest Docker Compose...${RESET}"
+  sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)" \
+    -o /usr/local/bin/docker-compose
+  sudo chmod +x /usr/local/bin/docker-compose
+
+  echo -e "${GREEN}[✔] Initial setup complete.${RESET}"
+}
 
 load_env() { [ -f "$ENV_FILE" ] && . "$ENV_FILE"; }
 
@@ -24,42 +60,9 @@ EOF
 }
 
 install_dependencies() {
-  echo "Checking for package manager locks and terminating any blocking processes..."
-  for lock in /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock; do
-    if sudo lsof "$lock" >/dev/null 2>&1; then
-      pids=$(sudo lsof -t "$lock")
-      echo -e "${YELLOW}Killing processes holding $lock: $pids${RESET}"
-      sudo kill -9 $pids || true
-    fi
-  done
-
-  echo "Updating package lists and upgrading existing packages..."
-  sudo apt-get update && sudo apt-get upgrade -y
-  echo "Installing core dependencies..."
-  sudo apt install -y \
-    curl iptables build-essential git wget lz4 jq make gcc nano automake autoconf tmux htop \
-    nvme-cli libgbm1 pkg-config libssl-dev libleveldb-dev tar clang bsdmainutils ncdu unzip
-
-  echo "Removing conflicting Docker packages if any..."
-  for pkg in docker.io docker-doc docker-compose podman-docker containerd runc; do
-    sudo apt-get remove -y "$pkg" || true
-  done
-
-  echo "Setting up Docker repository and installing Docker engine..."
-  sudo apt-get install -y ca-certificates curl gnupg
-  sudo install -m 0755 -d /etc/apt/keyrings
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-  sudo chmod a+r /etc/apt/keyrings/docker.gpg
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-    https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" \
-    | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-  sudo apt-get update && sudo apt-get install -y \
-    docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-  sudo systemctl enable docker.service || true
-  sudo systemctl restart docker.service || true
+  echo "Old dependency installer skipped due to new initial setup."
 }
 
-# Start Docker service if not running
 start_docker_if_not_running() {
   if ! systemctl is-active --quiet docker; then
     echo "Docker is not running. Starting Docker..."
@@ -67,12 +70,9 @@ start_docker_if_not_running() {
   else
     echo "Docker is already running."
   fi
-
-  # Enable Docker to start on boot
   sudo systemctl enable docker || true
 }
 
-# Add user to docker group if not already added
 add_user_to_docker_group() {
   if ! groups $USER | grep -q '\bdocker\b'; then
     echo "Adding $USER to the Docker group..."
@@ -107,7 +107,6 @@ restart_node() {
 }
 
 setup() {
-  install_dependencies
   if ! command -v aztec &>/dev/null; then
     curl -sSf https://install.aztec.network | bash
     export PATH="$HOME/.aztec/bin:$PATH"
@@ -173,6 +172,9 @@ reinstall_node() {
   full_clean
   setup
 }
+
+# Run initial setup first
+initial_setup
 
 echo -e "${CYAN}${BOLD}Aztec Validator Manager${RESET}"
 echo -e "${YELLOW}              by Brock0021${RESET}"
