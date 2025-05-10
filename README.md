@@ -98,3 +98,15 @@ permission denied while trying to connect to the Docker daemon socket at unix://
 newgrp docker
 docker ps
 ```
+👨‍💻 For Remove
+------------
+
+For remove Docker Container Etc files that you install while running script
+
+```
+git clone https://github.com/tnetone1/aztec-validator-node.git
+
+chmod +x aztec_cleanup.sh
+
+./aztec_cleanup.sh
+```
