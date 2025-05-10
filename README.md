@@ -62,6 +62,11 @@ chmod +x manage_node.sh
 
 **While Running Script** :-
 
+**IMP**: After 1st Option Run successfully you need to run this command ``` newgrp docker ``` and then check ``` docker ps  ``` successfully looks like ass below
+
+![image](https://github.com/user-attachments/assets/8795e72d-102f-4fe0-9d47-97738da241f8)
+
+
 **Sepolia RPC**: Add the Sepolia RPC link in the relevant section for the Sepolia network.
 
 **Beacon**: Similarly, add the Beacon Sepolia link where it is required.
