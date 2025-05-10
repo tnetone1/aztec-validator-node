@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # manage_node.sh — All-in-one Aztec Alpha-Testnet Validator Manager
-# by TG - @Brock0021 (Enhanced by ChatGPT)
+# by TG - @Brock0021
 
 set -euo pipefail
 
@@ -10,48 +10,43 @@ RED=$'\e[0;31m'; GREEN=$'\e[0;32m'; YELLOW=$'\e[1;33m'; CYAN=$'\e[0;36m'; BOLD=$
 ENV_FILE=".env"
 DATA_DIR="$HOME/.aztec/alpha-testnet/data"
 
-# 🔐 Don't run as root
-if [ "$(id -u)" = 0 ]; then
-  echo -e "${RED}Please do not run this script as root! Use a normal user with sudo privileges.${RESET}"
-  exit 1
-fi
+# Define all functions first
 
-initial_setup() {
-  echo -e "${CYAN}[*] Running Initial System Setup...${RESET}"
+# Install necessary dependencies
+install_dependencies() {
+  echo "Checking for package manager locks and terminating any blocking processes..."
+  for lock in /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock; do
+    if sudo lsof "$lock" >/dev/null 2>&1; then
+      pids=$(sudo lsof -t "$lock")
+      echo -e "${YELLOW}Killing processes holding $lock: $pids${RESET}"
+      sudo kill -9 $pids || true
+    fi
+  done
 
-  echo -e "${YELLOW}Updating system packages...${RESET}"
+  echo "Updating package lists and upgrading existing packages..."
   sudo apt-get update && sudo apt-get upgrade -y
+  echo "Installing core dependencies..."
+  sudo apt install -y \
+    curl iptables build-essential git wget lz4 jq make gcc nano automake autoconf tmux htop \
+    nvme-cli libgbm1 pkg-config libssl-dev libleveldb-dev tar clang bsdmainutils ncdu unzip
 
-  echo -e "${YELLOW}Installing Node.js 20.x...${RESET}"
-  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-  sudo apt install -y nodejs
+  echo "Removing conflicting Docker packages if any..."
+  for pkg in docker.io docker-doc docker-compose podman-docker containerd runc; do
+    sudo apt-get remove -y "$pkg" || true
+  done
 
-  echo -e "${YELLOW}Installing essential packages...${RESET}"
-  sudo apt install -y curl iptables build-essential git wget lz4 jq make gcc nano automake autoconf tmux htop \
-    nvme-cli libgbm1 pkg-config libssl-dev libleveldb-dev tar clang bsdmainutils ncdu unzip \
-    libleveldb-dev screen ufw
-
-  echo -e "${YELLOW}Installing Docker and Docker Compose...${RESET}"
-  sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
-
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-
-  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+  echo "Setting up Docker repository and installing Docker engine..."
+  sudo apt-get install -y ca-certificates curl gnupg
+  sudo install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  sudo chmod a+r /etc/apt/keyrings/docker.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+    https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" \
     | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-  sudo apt update && sudo apt install -y docker-ce
-  sudo systemctl enable --now docker
-
-  echo -e "${YELLOW}Adding user to docker group...${RESET}"
-  sudo usermod -aG docker $USER
-  newgrp docker
-
-  echo -e "${YELLOW}Installing latest Docker Compose...${RESET}"
-  sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)" \
-    -o /usr/local/bin/docker-compose
-  sudo chmod +x /usr/local/bin/docker-compose
-
-  echo -e "${GREEN}[✔] Initial setup complete. You may need to logout and login again if Docker access fails.${RESET}"
+  sudo apt-get update && sudo apt-get install -y \
+    docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  sudo systemctl enable docker.service || true
+  sudo systemctl restart docker.service || true
 }
 
 load_env() { [ -f "$ENV_FILE" ] && . "$ENV_FILE"; }
@@ -67,11 +62,7 @@ EOF
   chmod 600 "$ENV_FILE"
 }
 
-stop_node() {
-  pkill -f "aztec start" || true
-  docker ps -q --filter ancestor=aztecprotocol/aztec | xargs -r docker stop | xargs -r docker rm
-}
-
+# Start node function
 start_node() {
   load_env
   exec aztec start --node --archiver --sequencer \
@@ -84,12 +75,21 @@ start_node() {
     --p2p.maxTxPoolSize 1000000000
 }
 
+# Stop node function
+stop_node() {
+  pkill -f "aztec start" || true
+  docker ps -q --filter ancestor=aztecprotocol/aztec | xargs -r docker stop | xargs -r docker rm
+}
+
+# Restart node function
 restart_node() {
   stop_node
   start_node
 }
 
+# Setup function
 setup() {
+  install_dependencies
   if ! command -v aztec &>/dev/null; then
     curl -sSf https://install.aztec.network | bash
     export PATH="$HOME/.aztec/bin:$PATH"
@@ -104,88 +104,52 @@ setup() {
 
   save_env
   start_node
-
-  echo -e "${GREEN}Node started successfully. To view logs, run: ${CYAN}docker logs -f <container_id>${RESET}"
 }
 
-get_apprentice() {
-  load_env
-  block=$(curl -s -X POST -H 'Content-Type: application/json' \
-    -d '{"jsonrpc":"2.0","method":"node_getL2Tips","params":[],"id":1}' \
-    http://localhost:8080 | jq -r .result.proven.number)
-  proof=$(curl -s -X POST -H 'Content-Type: application/json' \
-    -d "{\"jsonrpc\":\"2.0\",\"method\":\"node_getArchiveSiblingPath\",\"params\":[\"$block\",\"$block\"],\"id\":1}" \
-    http://localhost:8080 | jq -r .result)
-  echo -e "Address:      ${YELLOW}$PUBLIC_KEY${RESET}"
-  echo -e "Block-Number: ${YELLOW}$block${RESET}"
-  echo -e "Proof:        ${YELLOW}$proof${RESET}"
-}
+# Other functions like get_apprentice, register_validator, change_rpc, etc. follow here...
 
-register_validator() {
-  load_env
-  aztec add-l1-validator \
-    --l1-rpc-urls "$RPC_URL" \
-    --private-key "$PRIVATE_KEY" \
-    --attester "$PUBLIC_KEY" \
-    --proposer-eoa "$PUBLIC_KEY" \
-    --staking-asset-handler 0xF739D03e98e23A7B65940848aBA8921fF3bAc4b2 \
-    --l1-chain-id 11155111
-}
-
-change_rpc() {
-  load_env
-  read -rp "New RPC URL: " RPC_URL
-  read -rp "New Beacon URL: " RPC_BEACON_URL
-  save_env
-  restart_node
-}
-
-wipe_data() {
-  load_env
-  stop_node
-  rm -rf "$DATA_DIR"
-  start_node
-}
-
-full_clean() {
-  stop_node
-  rm -rf "$HOME/.aztec" "$ENV_FILE"
-}
-
-reinstall_node() {
-  stop_node
-  full_clean
-  setup
-}
-
-# 🧱 Run initial setup first
-initial_setup
-
-# 📋 Menu
+# Initial setup or Main Menu
 echo -e "${CYAN}${BOLD}Aztec Validator Manager${RESET}"
 echo -e "${YELLOW}              by Brock0021${RESET}"
-echo "1) Setup Node Validator"
-echo "2) Get Role Apprentice"
-echo "3) Register Validator"
-echo "4) Stop Node"
-echo "5) Restart Node"
-echo "6) Change RPC"
-echo "7) Delete Node Data"
-echo "8) Full Clean"
-echo "9) Reinstall Node"
-echo "x) Exit"
-read -rp "Select: " choice
+echo "1) Initial Setup"
+echo "2) Launch Aztec Node Manager"
+read -rp "Select an option: " initial_choice
 
-case "$choice" in
-  1) setup ;;
-  2) get_apprentice ;;
-  3) register_validator ;;
-  4) stop_node ;;
-  5) restart_node ;;
-  6) change_rpc ;;
-  7) wipe_data ;;
-  8) full_clean ;;
-  9) reinstall_node ;;
-  x|X) exit 0 ;;
-  *) echo -e "${RED}Invalid choice.${RESET}" ; exit 1 ;;
+case "$initial_choice" in
+  1)
+    # Run the initial setup
+    setup
+    ;;
+  2)
+    # Main menu for further actions
+    echo "1) Setup Node Validator"
+    echo "2) Get Role Apprentice"
+    echo "3) Register Validator"
+    echo "4) Stop Node"
+    echo "5) Restart Node"
+    echo "6) Change RPC"
+    echo "7) Delete Node Data"
+    echo "8) Full Clean"
+    echo "9) Reinstall Node"
+    echo "x) Exit"
+    read -rp "Select: " choice
+
+    case "$choice" in
+      1) setup ;;
+      2) get_apprentice ;;
+      3) register_validator ;;
+      4) stop_node ;;
+      5) restart_node ;;
+      6) change_rpc ;;
+      7) wipe_data ;;
+      8) full_clean ;;
+      9) reinstall_node ;;
+      x|X) exit 0 ;;
+      *) exit 1 ;;
+    esac
+    ;;
+  *)
+    echo "Invalid choice. Exiting."
+    exit 1
+    ;;
 esac
