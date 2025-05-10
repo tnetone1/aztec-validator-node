@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # manage_node.sh — All-in-one Aztec Alpha-Testnet Validator Manager
-# by TG - @Brock0021 (Modified)
+# by TG - @Brock0021 (Enhanced by ChatGPT)
 
 set -euo pipefail
 
@@ -10,6 +10,12 @@ RED=$'\e[0;31m'; GREEN=$'\e[0;32m'; YELLOW=$'\e[1;33m'; CYAN=$'\e[0;36m'; BOLD=$
 ENV_FILE=".env"
 DATA_DIR="$HOME/.aztec/alpha-testnet/data"
 
+# 🔐 Don't run as root
+if [ "$(id -u)" = 0 ]; then
+  echo -e "${RED}Please do not run this script as root! Use a normal user with sudo privileges.${RESET}"
+  exit 1
+fi
+
 initial_setup() {
   echo -e "${CYAN}[*] Running Initial System Setup...${RESET}"
 
@@ -18,14 +24,15 @@ initial_setup() {
 
   echo -e "${YELLOW}Installing Node.js 20.x...${RESET}"
   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-  sudo apt update && sudo apt install -y nodejs
+  sudo apt install -y nodejs
 
   echo -e "${YELLOW}Installing essential packages...${RESET}"
-  sudo apt install curl iptables build-essential git wget lz4 jq make gcc nano automake autoconf tmux htop \
-    nvme-cli libgbm1 pkg-config libssl-dev libleveldb-dev tar clang bsdmainutils ncdu unzip libleveldb-dev screen ufw -y
+  sudo apt install -y curl iptables build-essential git wget lz4 jq make gcc nano automake autoconf tmux htop \
+    nvme-cli libgbm1 pkg-config libssl-dev libleveldb-dev tar clang bsdmainutils ncdu unzip \
+    libleveldb-dev screen ufw
 
   echo -e "${YELLOW}Installing Docker and Docker Compose...${RESET}"
-  sudo apt update && sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+  sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
 
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 
@@ -37,13 +44,14 @@ initial_setup() {
 
   echo -e "${YELLOW}Adding user to docker group...${RESET}"
   sudo usermod -aG docker $USER
+  newgrp docker
 
   echo -e "${YELLOW}Installing latest Docker Compose...${RESET}"
   sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)" \
     -o /usr/local/bin/docker-compose
   sudo chmod +x /usr/local/bin/docker-compose
 
-  echo -e "${GREEN}[✔] Initial setup complete.${RESET}"
+  echo -e "${GREEN}[✔] Initial setup complete. You may need to logout and login again if Docker access fails.${RESET}"
 }
 
 load_env() { [ -f "$ENV_FILE" ] && . "$ENV_FILE"; }
@@ -57,31 +65,6 @@ PRIVATE_KEY="$PRIVATE_KEY"
 P2P_IP="$P2P_IP"
 EOF
   chmod 600 "$ENV_FILE"
-}
-
-install_dependencies() {
-  echo "Old dependency installer skipped due to new initial setup."
-}
-
-start_docker_if_not_running() {
-  if ! systemctl is-active --quiet docker; then
-    echo "Docker is not running. Starting Docker..."
-    sudo systemctl start docker
-  else
-    echo "Docker is already running."
-  fi
-  sudo systemctl enable docker || true
-}
-
-add_user_to_docker_group() {
-  if ! groups $USER | grep -q '\bdocker\b'; then
-    echo "Adding $USER to the Docker group..."
-    sudo usermod -aG docker $USER
-    echo "User added to Docker group. Please log out and log back in for the changes to take effect."
-    exit 0
-  else
-    echo "$USER is already a member of the Docker group."
-  fi
 }
 
 stop_node() {
@@ -121,6 +104,8 @@ setup() {
 
   save_env
   start_node
+
+  echo -e "${GREEN}Node started successfully. To view logs, run: ${CYAN}docker logs -f <container_id>${RESET}"
 }
 
 get_apprentice() {
@@ -173,9 +158,10 @@ reinstall_node() {
   setup
 }
 
-# Run initial setup first
+# 🧱 Run initial setup first
 initial_setup
 
+# 📋 Menu
 echo -e "${CYAN}${BOLD}Aztec Validator Manager${RESET}"
 echo -e "${YELLOW}              by Brock0021${RESET}"
 echo "1) Setup Node Validator"
@@ -201,5 +187,5 @@ case "$choice" in
   8) full_clean ;;
   9) reinstall_node ;;
   x|X) exit 0 ;;
-  *) exit 1 ;;
+  *) echo -e "${RED}Invalid choice.${RESET}" ; exit 1 ;;
 esac
