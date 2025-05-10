@@ -107,7 +107,54 @@ setup() {
 }
 
 # Other functions like get_apprentice, register_validator, change_rpc, etc. follow here...
+get_apprentice() {
+  load_env
+  block=$(curl -s -X POST -H 'Content-Type: application/json' \
+    -d '{"jsonrpc":"2.0","method":"node_getL2Tips","params":[],"id":1}' \
+    http://localhost:8080 | jq -r .result.proven.number)
+  proof=$(curl -s -X POST -H 'Content-Type: application/json' \
+    -d "{\"jsonrpc\":\"2.0\",\"method\":\"node_getArchiveSiblingPath\",\"params\":[\"$block\",\"$block\"],\"id\":1}" \
+    http://localhost:8080 | jq -r .result)
+  echo -e "Address:      ${YELLOW}$PUBLIC_KEY${RESET}"
+  echo -e "Block-Number: ${YELLOW}$block${RESET}"
+  echo -e "Proof:        ${YELLOW}$proof${RESET}"
+}
 
+register_validator() {
+  load_env
+  exec aztec add-l1-validator \
+    --l1-rpc-urls "$RPC_URL" \
+    --private-key "$PRIVATE_KEY" \
+    --attester "$PUBLIC_KEY" \
+    --proposer-eoa "$PUBLIC_KEY" \
+    --staking-asset-handler 0xF739D03e98e23A7B65940848aBA8921fF3bAc4b2 \
+    --l1-chain-id 11155111
+}
+
+change_rpc() {
+  load_env
+  read -rp "New RPC URL: " RPC_URL
+  read -rp "New Beacon URL: " RPC_BEACON_URL
+  save_env
+  restart_node
+}
+wipe_data() {
+  load_env
+  stop_node
+  rm -rf "$DATA_DIR"
+  start_node
+}
+
+full_clean() {
+  stop_node
+  rm -rf "$HOME/.aztec" "$ENV_FILE"
+}
+
+reinstall_node() {
+  stop_node
+  full_clean
+  setup
+}
 # Initial setup or Main Menu
 echo -e "${CYAN}${BOLD}Aztec Validator Manager${RESET}"
 echo -e "${YELLOW}              by Brock0021${RESET}"
