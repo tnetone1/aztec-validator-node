@@ -10,11 +10,22 @@ RED=$'\e[0;31m'; GREEN=$'\e[0;32m'; YELLOW=$'\e[1;33m'; CYAN=$'\e[0;36m'; BOLD=$
 ENV_FILE=".env"
 DATA_DIR="$HOME/.aztec/alpha-testnet/data"
 
-# Define all functions first
+load_env() { [ -f "$ENV_FILE" ] && . "$ENV_FILE"; }
 
-# Install necessary dependencies
+save_env() {
+  cat > "$ENV_FILE" <<EOF
+RPC_URL="$RPC_URL"
+RPC_BEACON_URL="$RPC_BEACON_URL"
+PUBLIC_KEY="$PUBLIC_KEY"
+PRIVATE_KEY="$PRIVATE_KEY"
+P2P_IP="$P2P_IP"
+EOF
+  chmod 600 "$ENV_FILE"
+}
+
 install_dependencies() {
   echo "Checking for package manager locks and terminating any blocking processes..."
+  # Detect and kill processes holding apt/dpkg locks
   for lock in /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock; do
     if sudo lsof "$lock" >/dev/null 2>&1; then
       pids=$(sudo lsof -t "$lock")
@@ -30,6 +41,7 @@ install_dependencies() {
     curl iptables build-essential git wget lz4 jq make gcc nano automake autoconf tmux htop \
     nvme-cli libgbm1 pkg-config libssl-dev libleveldb-dev tar clang bsdmainutils ncdu unzip
 
+  # Clean up old Docker packages if present
   echo "Removing conflicting Docker packages if any..."
   for pkg in docker.io docker-doc docker-compose podman-docker containerd runc; do
     sudo apt-get remove -y "$pkg" || true
@@ -49,20 +61,11 @@ install_dependencies() {
   sudo systemctl restart docker.service || true
 }
 
-load_env() { [ -f "$ENV_FILE" ] && . "$ENV_FILE"; }
-
-save_env() {
-  cat > "$ENV_FILE" <<EOF
-RPC_URL="$RPC_URL"
-RPC_BEACON_URL="$RPC_BEACON_URL"
-PUBLIC_KEY="$PUBLIC_KEY"
-PRIVATE_KEY="$PRIVATE_KEY"
-P2P_IP="$P2P_IP"
-EOF
-  chmod 600 "$ENV_FILE"
+stop_node() {
+  pkill -f "aztec start" || true
+  docker ps -q --filter ancestor=aztecprotocol/aztec | xargs -r docker stop | xargs -r docker rm
 }
 
-# Start node function
 start_node() {
   load_env
   exec aztec start --node --archiver --sequencer \
@@ -71,23 +74,14 @@ start_node() {
     --l1-consensus-host-urls "$RPC_BEACON_URL" \
     --sequencer.validatorPrivateKey "$PRIVATE_KEY" \
     --sequencer.coinbase "$PUBLIC_KEY" \
-    --p2p.p2pIp "$P2P_IP" \
-    --p2p.maxTxPoolSize 1000000000
+    --p2p.p2pIp "$P2P_IP"
 }
 
-# Stop node function
-stop_node() {
-  pkill -f "aztec start" || true
-  docker ps -q --filter ancestor=aztecprotocol/aztec | xargs -r docker stop | xargs -r docker rm
-}
-
-# Restart node function
 restart_node() {
   stop_node
   start_node
 }
 
-# Setup function
 setup() {
   install_dependencies
   if ! command -v aztec &>/dev/null; then
@@ -137,6 +131,7 @@ change_rpc() {
   save_env
   restart_node
 }
+
 wipe_data() {
   load_env
   stop_node
@@ -156,46 +151,29 @@ reinstall_node() {
 }
 
 echo -e "${CYAN}${BOLD}Aztec Validator Manager${RESET}"
-echo -e "${YELLOW}              by Brock0021${RESET}"
-echo "1) Initial Setup"
-echo "2) Launch Aztec Node Manager"
-read -rp "Select an option: " initial_choice
+echo -e "${YELLOW}              by KEVIN${RESET}"
+echo "1) Setup Node Validator"
+echo "2) Get Role Apprentice"
+echo "3) Register Validator"
+echo "4) Stop Node"
+echo "5) Restart Node"
+echo "6) Change RPC"
+echo "7) Delete Node Data"
+echo "8) Full Clean"
+echo "9) Reinstall Node"
+echo "x) Exit"
+read -rp "Select: " choice
 
-case "$initial_choice" in
-  1)
-    # Run the initial setup
-    setup
-    ;;
-  2)
-    # Main menu for further actions
-    echo "1) Setup Node Validator"
-    echo "2) Get Role Apprentice"
-    echo "3) Register Validator"
-    echo "4) Stop Node"
-    echo "5) Restart Node"
-    echo "6) Change RPC"
-    echo "7) Delete Node Data"
-    echo "8) Full Clean"
-    echo "9) Reinstall Node"
-    echo "x) Exit"
-    read -rp "Select: " choice
-
-    case "$choice" in
-      1) setup ;;
-      2) get_apprentice ;;
-      3) register_validator ;;
-      4) stop_node ;;
-      5) restart_node ;;
-      6) change_rpc ;;
-      7) wipe_data ;;
-      8) full_clean ;;
-      9) reinstall_node ;;
-      x|X) exit 0 ;;
-      *) exit 1 ;;
-    esac
-    ;;
-  *)
-    echo "Invalid choice. Exiting."
-    exit 1
-    ;;
+case "$choice" in
+  1) setup ;;
+  2) get_apprentice ;;
+  3) register_validator ;;
+  4) stop_node ;;
+  5) restart_node ;;
+  6) change_rpc ;;
+  7) wipe_data ;;
+  8) full_clean ;;
+  9) reinstall_node ;;
+  x|X) exit 0 ;;
+  *) exit 1 ;;
 esac
