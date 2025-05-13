@@ -24,12 +24,16 @@ A one-click script to install, configure, and manage your Aztec Alpha-Testnet va
 📜 Menu Options
 ---------------
 
-1.  Setup Node Validator  
-2.  Get Role Apprentice  
-3.  Register Validator  
-4.  Stop/Restart Node  
-5.  Change RPC  
-6.  Clean or Reinstall  
+1) Setup Node Validator
+2) Get Role Apprentice
+3) Register Validator
+4) Stop Node
+5) Restart Node
+6) Change RPC
+7) Delete Node Data
+8) Full Clean
+9) Reinstall Node
+x) Exit
 
 👨‍💻 Author
 ------------
