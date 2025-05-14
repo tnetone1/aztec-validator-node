@@ -49,7 +49,12 @@ This script is for educational/testnet use. No warranty provided.
 ## 🚀 Quick Start
 
 Run the following commands **one by one** in your terminal:
+
 First you need docker installed on your system If Not See FAQ( FAQ IS IN END OF THIS GUIDE)
+
+Also If Sudo Not Installed See FAQ
+
+
 
 ```
 apt update && apt install sudo -y
