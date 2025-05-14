@@ -57,9 +57,6 @@ Also If Sudo Not Installed See FAQ
 
 
 ```
-apt update && apt install sudo -y
-```
-```
 sudo apt update -y
 sudo apt upgrade -y
 ```
@@ -186,4 +183,8 @@ sudo systemctl enable docker
 
 sudo systemctl status docker
 
+```
+- **Sudo Not Installed Then Install Now**
+```
+apt update && apt install sudo -y
 ```
