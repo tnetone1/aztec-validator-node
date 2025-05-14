@@ -67,7 +67,7 @@ sudo apt install screen
 
 screen -S aztec
 ```
-- Start Your Sequencer 🍥
+- **Start Your Sequencer 🍥**
 ```
 sudo apt update && sudo apt install git -y
 
@@ -80,6 +80,13 @@ chmod +x manage_node.sh
 ./manage_node.sh
 ```
 
+- **For Detached and Attached From the Screen**
+  For detached from screen session - ```ctrl``` , ```a``` + ```d```
+
+- **For Attach -**
+```
+screen -r aztec
+```
 **While Running Script** :-
 
 
