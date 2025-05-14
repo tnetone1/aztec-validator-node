@@ -61,12 +61,13 @@ sudo ufw allow 40400
 sudo ufw allow 8080
 ```
 
-- Create a Screen Session
+- **Create a Screen Session**
 ```bash
 sudo apt install screen
 
 screen -S aztec
 ```
+- Start Your Sequencer 🍥
 ```
 sudo apt update && sudo apt install git -y
 
