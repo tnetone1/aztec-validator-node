@@ -50,11 +50,24 @@ This script is for educational/testnet use. No warranty provided.
 
 Run the following commands **one by one** in your terminal:
 First you need docker installed on your system If Not See FAQ( FAQ IS IN END OF THIS GUIDE)
+
+```
+sudo ufw allow 22
+sudo ufw allow ssh
+sudo ufw enable
+```
+```
+sudo ufw allow 40400
+sudo ufw allow 8080
+```
+
+- Create a Screen Session
 ```bash
 sudo apt install screen
 
 screen -S aztec
-
+```
+```
 sudo apt update && sudo apt install git -y
 
 git clone https://github.com/tnetone1/aztec-validator-node.git
