@@ -68,6 +68,8 @@ apt-get update
 apt-get install nano
 ```
 ```
+sudo apt install ufw
+
 sudo ufw allow 22
 sudo ufw allow ssh
 sudo ufw enable
