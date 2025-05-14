@@ -61,11 +61,11 @@ sudo apt update -y
 sudo apt upgrade -y
 ```
 ```
-apt-get update
-apt-get install curl
+sudo apt-get update
+sudo apt-get install curl
 
-apt-get update
-apt-get install nano
+sudo apt-get update
+sudo apt-get install nano
 ```
 ```
 sudo apt install ufw
