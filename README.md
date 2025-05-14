@@ -68,14 +68,12 @@ chmod +x manage_node.sh
 
 **While Running Script** :-
 
-**IMP**: After 1st Option Run successfully you need to run this command ``` newgrp docker ``` and then check ``` docker ps  ``` successfully looks like ass below
-
-![image](https://github.com/user-attachments/assets/8795e72d-102f-4fe0-9d47-97738da241f8)
-
 
 **Sepolia RPC**: Add the Sepolia RPC link in the relevant section for the Sepolia network.
+For Eth Sepolia - https://nodereal.io/invite/167cf1bf-4e03-45ab-a9e8-830e11e2a1ef
 
 **Beacon**: Similarly, add the Beacon Sepolia link where it is required.
+For Beacon Sepolia - https://access.rockx.com?r=8utAnWHoNuu
 
 **Public**: In the Public section, input the address of the wallet you want to use in MetaMask (the burner wallet address). Ensure that the address is correct and in the right format.
 
