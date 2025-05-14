@@ -10,7 +10,7 @@ A one-click script to install, configure, and manage your Aztec Alpha-Testnet va
 - Server Requirements: Ensure these specs are met; if not, reach out for assistance.
 - RPC Endpoint: For best performance, use a paid Ankr RPC. For a free alternative, try DRPC: https://drpc.org?ref=1e9da0
 - For Eth Sepolia - https://nodereal.io/invite/167cf1bf-4e03-45ab-a9e8-830e11e2a1ef
-- For Beacon Sepolia - https://access.rockx.com?r=g3qC6acWeHM
+- For Beacon Sepolia - https://access.rockx.com?r=8utAnWHoNuu
 
 ## 🔧 Features
 
