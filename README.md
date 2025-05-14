@@ -81,7 +81,8 @@ chmod +x manage_node.sh
 ```
 
 - **For Detached and Attached From the Screen**
-  For detached from screen session - ```ctrl``` , ```a``` + ```d```
+
+- For detached from screen session - ```ctrl``` , ```a``` + ```d```
 
 - **For Attach -**
 ```
