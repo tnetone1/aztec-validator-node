@@ -52,6 +52,20 @@ Run the following commands **one by one** in your terminal:
 First you need docker installed on your system If Not See FAQ( FAQ IS IN END OF THIS GUIDE)
 
 ```
+apt update && apt install sudo -y
+```
+```
+sudo apt update -y
+sudo apt upgrade -y
+```
+```
+apt-get update
+apt-get install curl
+
+apt-get update
+apt-get install nano
+```
+```
 sudo ufw allow 22
 sudo ufw allow ssh
 sudo ufw enable
