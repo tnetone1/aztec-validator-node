@@ -55,6 +55,8 @@ First you need docker installed on your system If Not See FAQ( FAQ IS IN END OF 
 Also If Sudo Not Installed See FAQ
 
 
+**firstly login as root** 
+```sudo -i``` or  ``` su - ```
 
 ```
 sudo apt update -y
@@ -190,3 +192,7 @@ sudo systemctl status docker
 ```
 apt update && apt install sudo -y
 ```
+
+
+- ** if forgot root password you can ask chatgpt or try this command
+``` passwd ``` oR ``` sudo passwd ```
