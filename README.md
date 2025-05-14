@@ -50,10 +50,10 @@ This script is for educational/testnet use. No warranty provided.
 
 Run the following commands **one by one** in your terminal:
 
-First you need docker installed on your system If Not See FAQ( FAQ IS IN END OF THIS GUIDE)
+**First you need docker installed on your system If Not See FAQ( FAQ IS IN END OF THIS GUIDE)**
 
-Also If Sudo Not Installed See FAQ
-
+**Also If Sudo Not Installed See FAQ**
+**ALL ERRORS SOLUTION IN FAQ  AND IF NOT MENTION YOUR ERROR IN FAQ YOU CAN INBOX ME https://t.me/Brock0021**
 
 **firstly login as root** 
 ```sudo -i``` or  ``` su - ```
