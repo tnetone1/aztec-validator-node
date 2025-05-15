@@ -151,7 +151,7 @@ reinstall_node() {
 }
 
 echo -e "${CYAN}${BOLD}Aztec Validator Manager${RESET}"
-echo -e "${YELLOW}              by KEVIN${RESET}"
+echo -e "${YELLOW}              by Brock0021${RESET}"
 echo "1) Setup Node Validator"
 echo "2) Get Role Apprentice"
 echo "3) Register Validator"
