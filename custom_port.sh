@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# manage_node.sh — All-in-one Aztec Alpha-Testnet Validator Manager
-# Updated by TG- Brock0021 for custom RPC port
+# Final clean version – Aztec Alpha-Testnet Validator Manager
 
 set -euo pipefail
 
@@ -25,17 +24,10 @@ EOF
 }
 
 install_dependencies() {
-  echo "Updating packages and installing dependencies..."
+  echo "Installing dependencies..."
   sudo apt-get update && sudo apt-get upgrade -y
-  sudo apt install -y \
-    curl iptables build-essential git wget lz4 jq make gcc nano automake autoconf tmux htop \
-    nvme-cli libgbm1 pkg-config libssl-dev libleveldb-dev tar clang bsdmainutils ncdu unzip \
-    ca-certificates gnupg
-
-  echo "Removing conflicting Docker packages..."
-  for pkg in docker.io docker-doc docker-compose podman-docker containerd runc; do
-    sudo apt-get remove -y "$pkg" || true
-  done
+  sudo apt install -y curl iptables build-essential git wget lz4 jq make gcc nano automake autoconf tmux htop \
+    nvme-cli libgbm1 pkg-config libssl-dev libleveldb-dev tar clang bsdmainutils ncdu unzip ca-certificates gnupg
 
   echo "Installing Docker..."
   sudo install -m 0755 -d /etc/apt/keyrings
@@ -57,7 +49,9 @@ stop_node() {
 start_node() {
   load_env
   sudo ufw allow "$AZTEC_PORT"/tcp || true
-  exec aztec start --node --archiver --sequencer \
+
+  echo "Starting Aztec node..."
+  "$HOME/.aztec/bin/aztec" start --node --archiver --sequencer \
     --network alpha-testnet \
     --l1-rpc-urls "$RPC_URL" \
     --l1-consensus-host-urls "$RPC_BEACON_URL" \
@@ -74,11 +68,13 @@ restart_node() {
 
 setup() {
   install_dependencies
-  if ! command -v aztec &>/dev/null; then
-    curl -sSf https://install.aztec.network | bash
-    export PATH="$HOME/.aztec/bin:$PATH"
-  fi
-  aztec-up alpha-testnet
+
+  echo "Installing Aztec CLI..."
+  bash -i <(curl -s https://install.aztec.network)
+  export PATH="$HOME/.aztec/bin:$PATH"
+
+  echo "Setting Aztec version to latest..."
+  "$HOME/.aztec/bin/aztec-up" latest
 
   read -rp "Sepolia RPC URL: " RPC_URL
   read -rp "Sepolia Beacon URL: " RPC_BEACON_URL
@@ -107,7 +103,7 @@ get_apprentice() {
 
 register_validator() {
   load_env
-  exec aztec add-l1-validator \
+  "$HOME/.aztec/bin/aztec" add-l1-validator \
     --l1-rpc-urls "$RPC_URL" \
     --private-key "$PRIVATE_KEY" \
     --attester "$PUBLIC_KEY" \
@@ -144,7 +140,7 @@ reinstall_node() {
 }
 
 echo -e "${CYAN}${BOLD}Aztec Validator Manager${RESET}"
-echo -e "${YELLOW}              with RPC Port Customization${RESET}"
+echo -e "${YELLOW}              FINAL CLEAN VERSION${RESET}"
 echo "1) Setup Node Validator"
 echo "2) Get Role Apprentice"
 echo "3) Register Validator"
