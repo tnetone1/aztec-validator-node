@@ -203,3 +203,19 @@ apt update && apt install sudo -y
 
 - ** if forgot root password you can ask chatgpt or try this command
 ``` passwd ``` oR ``` sudo passwd ```
+
+
+🔍 Aztec Validator Health Check Script
+Monitor your Aztec validator status including:
+
+✅ Geth (execution layer) sync
+
+✅ Beacon (consensus layer) sync
+
+✅ Aztec L2 proven block availability
+
+📦 Installation
+```
+curl -o aztec_health_check.sh https://raw.githubusercontent.com/<your-github-username>/<repo-name>/main/aztec_health_check.sh
+chmod +x aztec_health_check.sh
+```
