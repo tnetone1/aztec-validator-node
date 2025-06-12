@@ -101,9 +101,10 @@ git clone https://github.com/tnetone1/aztec-validator-node.git
 
 cd aztec-validator-node
 
-chmod +x manage_node.sh
+chmod +x custom_port.sh
 
-./manage_node.sh
+./custom_port.sh
+
 ```
 
 - **For Detached and Attached From the Screen :-**
