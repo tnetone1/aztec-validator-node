@@ -81,7 +81,7 @@ setup() {
   read -rp "Sepolia RPC URL: " RPC_URL
   read -rp "Sepolia Beacon URL: " RPC_BEACON_URL
   read -rp "Validator PUBLIC key: " PUBLIC_KEY
-  read -rsp "Validator PRIVATE key: " PRIVATE_KEY"; echo
+  read -rsp "Validator PRIVATE key: " PRIVATE_KEY; echo
   read -rp "Custom Aztec RPC Port (default 8080): " AZTEC_PORT
   AZTEC_PORT=${AZTEC_PORT:-8080}
   P2P_IP=$(curl -sS ipv4.icanhazip.com || read -rp "Public IP: " P2P_IP)
