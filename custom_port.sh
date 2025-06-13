@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Final clean version – Aztec Alpha-Testnet Validator Manager
+# Aztec Alpha-Testnet Validator Manager (Final Production Version)
 
 set -euo pipefail
 
@@ -70,7 +70,9 @@ setup() {
   install_dependencies
 
   echo "Installing Aztec CLI..."
-  bash -i <(curl -s https://install.aztec.network)
+  (
+    curl -s https://install.aztec.network | bash
+  )
   export PATH="$HOME/.aztec/bin:$PATH"
 
   echo "Setting Aztec version to latest..."
@@ -79,7 +81,7 @@ setup() {
   read -rp "Sepolia RPC URL: " RPC_URL
   read -rp "Sepolia Beacon URL: " RPC_BEACON_URL
   read -rp "Validator PUBLIC key: " PUBLIC_KEY
-  read -rsp "Validator PRIVATE key: " PRIVATE_KEY; echo
+  read -rsp "Validator PRIVATE key: " PRIVATE_KEY"; echo
   read -rp "Custom Aztec RPC Port (default 8080): " AZTEC_PORT
   AZTEC_PORT=${AZTEC_PORT:-8080}
   P2P_IP=$(curl -sS ipv4.icanhazip.com || read -rp "Public IP: " P2P_IP)
@@ -140,7 +142,7 @@ reinstall_node() {
 }
 
 echo -e "${CYAN}${BOLD}Aztec Validator Manager${RESET}"
-echo -e "${YELLOW}              FINAL CLEAN VERSION${RESET}"
+echo -e "${YELLOW}              TG>>@brock0021 ${RESET}"
 echo "1) Setup Node Validator"
 echo "2) Get Role Apprentice"
 echo "3) Register Validator"
